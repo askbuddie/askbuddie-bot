@@ -1,36 +1,47 @@
 {
-  "name": "askbuddie-bot",
-  "version": "1.0.0",
-  "description": "Ask Buddie Discord server bot to manage the server with some useful commands and automation.",
-  "main": "src/app.ts",
-  "scripts": {
-    "build": "tsc",
-    "start": "node build/app.js",
-    "dev": "nodemon --exec ts-node --require dotenv/config src/app.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/askbuddie/askbuddie-bot.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/askbuddie/askbuddie-bot/issues"
-  },
-  "homepage": "https://github.com/askbuddie/askbuddie-bot#readme",
-  "devDependencies": {
-    "@types/node": "^15.3.0",
-    "@typescript-eslint/eslint-plugin": "^4.24.0",
-    "@typescript-eslint/parser": "^4.24.0",
-    "dotenv": "^9.0.2",
-    "eslint": "^7.26.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^3.4.0",
-    "nodemon": "^2.0.7",
-    "prettier": "^2.3.0",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.4"
-  }
+    "name": "askbuddie-bot",
+    "version": "1.0.0",
+    "description": "Ask Buddie Discord server bot to manage the server with some useful commands and automation.",
+    "main": "src/app.ts",
+    "scripts": {
+        "build": "tsc",
+        "start": "node build/app.js",
+        "dev": "nodemon --exec ts-node --require dotenv/config src/app.ts",
+        "lint": "eslint src/**/*.ts",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "postinstall": "husky install"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/askbuddie/askbuddie-bot.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/askbuddie/askbuddie-bot/issues"
+    },
+    "homepage": "https://github.com/askbuddie/askbuddie-bot#readme",
+    "devDependencies": {
+        "@types/node": "^15.3.0",
+        "@typescript-eslint/eslint-plugin": "^4.24.0",
+        "@typescript-eslint/parser": "^4.24.0",
+        "dotenv": "^9.0.2",
+        "eslint": "^7.26.0",
+        "eslint-config-prettier": "^8.3.0",
+        "eslint-plugin-no-loops": "^0.3.0",
+        "eslint-plugin-prettier": "^3.4.0",
+        "husky": "^6.0.0",
+        "lint-staged": "^11.0.0",
+        "nodemon": "^2.0.7",
+        "prettier": "^2.3.0",
+        "ts-node": "^9.1.1",
+        "typescript": "^4.2.4"
+    },
+    "lint-staged": {
+        "*.{js,ts,json}": [
+            "yarn lint",
+            "prettier --write"
+        ]
+    }
 }
