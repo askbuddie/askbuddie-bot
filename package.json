@@ -1,7 +1,7 @@
 {
     "name": "askbuddie-bot",
     "version": "1.0.0",
-    "description": "Ask Buddie Discord server bot to manage the server with some useful commands and automation.",
+    "description": "Ask Buddie Bot to manage the Discord server with some useful commands and automation.",
     "main": "src/app.ts",
     "scripts": {
         "build": "tsc",
