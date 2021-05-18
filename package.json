@@ -1,0 +1,30 @@
+{
+  "name": "askbuddie-bot",
+  "version": "1.0.0",
+  "description": "Ask Buddie Discord server bot to manage the server with some useful commands and automation.",
+  "main": "src/app.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node build/app.js",
+    "dev": "nodemon --exec ts-node --require dotenv/config src/app.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/askbuddie/askbuddie-bot.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/askbuddie/askbuddie-bot/issues"
+  },
+  "homepage": "https://github.com/askbuddie/askbuddie-bot#readme",
+  "devDependencies": {
+    "@types/node": "^15.3.0",
+    "dotenv": "^9.0.2",
+    "nodemon": "^2.0.7",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  }
+}
