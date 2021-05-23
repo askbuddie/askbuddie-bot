@@ -28,7 +28,7 @@ Want to contribute? Please check the guidelines below:
 
 Please use `development` branch rather than `main` for the latest development changes.
 
-- Fort the repository
+- Fork the repository
 - Create a feature/patch branch from `development` branch
 - Commit your changes
 - push to the branch & open a pull request
