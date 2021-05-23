@@ -6,7 +6,7 @@
     "scripts": {
         "build": "tsc",
         "start": "node build/app.js",
-        "dev": "nodemon --exec ts-node --require dotenv/config src/app.ts",
+        "dev": "nodemon --exec ts-node -r dotenv/config -r tsconfig-paths/register src/app.ts",
         "lint": "eslint src/**/*.ts",
         "test": "echo \"Error: no test specified\" && exit 1",
         "postinstall": "husky install"
@@ -36,6 +36,7 @@
         "nodemon": "^2.0.7",
         "prettier": "^2.3.0",
         "ts-node": "^9.1.1",
+        "tsconfig-paths": "^3.9.0",
         "typescript": "^4.2.4"
     },
     "lint-staged": {
@@ -43,5 +44,8 @@
             "yarn lint",
             "prettier --write"
         ]
+    },
+    "dependencies": {
+        "discord.js": "^12.5.3"
     }
 }
