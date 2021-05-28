@@ -1,25 +1,25 @@
 import { Client, Collection } from 'discord.js';
 
-import * as flags from 'src/flags';
+import * as commands from 'src/commands';
 import config from 'src/config';
-import Flag from 'src/libs/flag';
+import Command from 'src/libs/command';
 
 class AskBuddieBot extends Client {
     private config: configTypes;
-    public flagList: Collection<unknown, Flag>;
+    public commandList: Collection<unknown, Command>;
     public readonly prefix: [string, string];
 
     constructor() {
         super();
         this.config = config;
-        this.flagList = new Collection();
+        this.commandList = new Collection();
         this.prefix = ['ab', 'buddie'];
     }
 
-    private loadFlags(): void {
-        Object.entries(flags).forEach(([, flag]) => {
-            const newFlag = new flag();
-            this.flagList.set(newFlag.name, newFlag);
+    private loadCommands(): void {
+        Object.entries(commands).forEach(([, command]) => {
+            const newCommand = new command();
+            this.commandList.set(newCommand.name, newCommand);
         });
     }
 
@@ -34,7 +34,7 @@ class AskBuddieBot extends Client {
     }
 
     public initialize(): void {
-        this.loadFlags();
+        this.loadCommands();
         this.authorize();
     }
 }
