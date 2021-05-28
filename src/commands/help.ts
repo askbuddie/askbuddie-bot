@@ -1,10 +1,10 @@
 import { Message } from 'discord.js';
-import Flag from 'src/libs/flag';
+import Command from 'src/libs/command';
 
-class Help extends Flag {
+class Help extends Command {
     constructor() {
         super({
-            name: '--help',
+            name: 'help',
             aliases: [''],
             description: 'Help command to show all the list.'
         });
@@ -15,19 +15,19 @@ class Help extends Flag {
             title: 'Help Commands',
             description:
                 'Please check the guide below on how to use bot. \
-                The bot support two commands or prefix: `ab` | `buddie`.',
+                The bot support two prefix: `ab` | `buddie`.',
             color: '#e53935',
             fields: [
                 {
                     name: '**Usage Example: **',
-                    value: '```ab --help``````buddie --help```'
+                    value: '```ab help``````buddie help```'
                 },
                 {
-                    name: '**Flags/Options: **',
-                    value: 'The bot accepts command as flag/option: \n \n'
+                    name: '**Commands: **',
+                    value: 'The bot accepts the below commands: \n \n'
                 },
                 {
-                    name: '`--help`',
+                    name: '`help`',
                     value: 'Help command to show all the list.'
                 }
             ]
