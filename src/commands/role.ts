@@ -42,7 +42,7 @@ class RoleCMD extends Command {
     public execute(message: Message, args: string[]): void {
         const first = args.shift();
 
-        let reqRoles: Array<string> = [];
+        let reqRoles: string[] = [];
 
         // Check for flags
         if (first === '--multi') {
@@ -85,8 +85,8 @@ class RoleCMD extends Command {
         });
 
         // Assign roles
-        const invalidRoles: Array<string> = [];
-        const roles: Array<string> = [];
+        const invalidRoles: string[] = [];
+        const roles: string[] = [];
 
         reqRoles.forEach((r: string) => {
             const role = roleList[r.toLowerCase()];
