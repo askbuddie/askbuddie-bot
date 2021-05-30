@@ -1,4 +1,4 @@
-import { Message, Role } from 'discord.js';
+import { Collection, GuildMember, Message, Role, Snowflake } from 'discord.js';
 import Command from 'src/libs/command';
 
 type RoleList = {
@@ -63,47 +63,54 @@ class RoleCMD extends Command {
         }
 
         const guild = message.guild;
-
-        const member = guild?.member(message.author);
-
         const bot = guild?.client.user;
 
-        // Get bot role position
-        let botHighestPosition = 0;
-        if (bot !== undefined && bot !== null) {
-            const botRole = guild?.member(bot)?.roles.highest;
-            if (botRole !== undefined) {
-                botHighestPosition = botRole.rawPosition;
-            }
+        if (bot === undefined || bot === null) {
+            throw new Error('Bot not found.');
         }
 
-        // List of guild roles
-        const roleList: RoleList = {};
-        guild?.roles.cache.forEach((role: Role) => {
-            if (botHighestPosition > role.rawPosition)
-                roleList[role.name.toLowerCase()] = role.id;
-        });
+        guild?.members
+            .fetch({ user: [message.author.id, bot.id] })
+            .then((members: Collection<Snowflake, GuildMember>) => {
+                const [member, botMember] = members.map((m) => m);
 
-        // Assign roles
-        const invalidRoles: string[] = [];
-        const roles: string[] = [];
+                // Get bot role position
+                let botHighestPosition = 0;
+                if (bot !== undefined && bot !== null) {
+                    const botRole = botMember.roles.highest;
+                    if (botRole !== undefined) {
+                        botHighestPosition = botRole.rawPosition;
+                    }
+                }
 
-        reqRoles.forEach((r: string) => {
-            const role = roleList[r.toLowerCase()];
-            if (role !== undefined) {
-                roles.push(role);
-            } else {
-                invalidRoles.push(r);
-            }
-        });
+                // List of guild roles
+                const roleList: RoleList = {};
+                guild?.roles.cache.forEach((role: Role) => {
+                    if (botHighestPosition > role.rawPosition)
+                        roleList[role.name.toLowerCase()] = role.id;
+                });
 
-        member?.roles.add(roles);
+                // Assign roles
+                const invalidRoles: string[] = [];
+                const roles: string[] = [];
 
-        if (invalidRoles.length > 0) {
-            message.channel.send(
-                `Couldn't find the following role(s): ${invalidRoles}`
-            );
-        }
+                reqRoles.forEach((r: string) => {
+                    const role = roleList[r.toLowerCase()];
+                    if (role !== undefined) {
+                        roles.push(role);
+                    } else {
+                        invalidRoles.push(r);
+                    }
+                });
+
+                member?.roles.add(roles);
+
+                if (invalidRoles.length > 0) {
+                    message.channel.send(
+                        `Couldn't find the following role(s): ${invalidRoles}`
+                    );
+                }
+            });
     }
 }
 
