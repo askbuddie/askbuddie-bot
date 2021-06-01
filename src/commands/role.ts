@@ -65,7 +65,7 @@ class RoleCMD extends Command {
         const guild = message.guild;
         const bot = guild?.client.user;
 
-        if (bot === undefined || bot === null) {
+        if (!bot) {
             throw new Error('Bot not found.');
         }
 
@@ -76,11 +76,9 @@ class RoleCMD extends Command {
 
                 // Get bot role position
                 let botHighestPosition = 0;
-                if (bot !== undefined && bot !== null) {
-                    const botRole = botMember.roles.highest;
-                    if (botRole !== undefined) {
-                        botHighestPosition = botRole.rawPosition;
-                    }
+                const botRole = botMember.roles.highest;
+                if (botRole !== undefined) {
+                    botHighestPosition = botRole.rawPosition;
                 }
 
                 // List of guild roles
