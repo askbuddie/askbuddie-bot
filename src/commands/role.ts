@@ -17,13 +17,13 @@ class RoleCMD extends Command {
     // Usage for invalid command
     private invalidCMD(message: Message): void {
         const embedObj = {
-            title: 'Role Commands',
-            description: 'Get a user role.',
+            title: 'Role Command',
+            description: this.description,
             color: '#e53935',
             fields: [
                 {
                     name: '**Usage Example: **',
-                    value: '```ab role [role]``````buddie role [role]```'
+                    value: '`ab role <role>` | `buddie role <role>`'
                 },
                 {
                     name: '**Flags: **',
