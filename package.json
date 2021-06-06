@@ -4,8 +4,8 @@
     "description": "Ask Buddie Bot to manage the Discord server with some useful commands and automation.",
     "main": "src/app.ts",
     "scripts": {
-        "build": "tsc",
-        "start": "node -r ts-node/register -r tsconfig-paths/register build/app.js",
+        "build": "tsc && npx tsc-alias",
+        "start": "node build/app.js",
         "dev": "nodemon --exec ts-node -r dotenv/config -r tsconfig-paths/register src/app.ts",
         "lint": "eslint src/**/*.ts",
         "test": "echo \"Error: no test specified\" && exit 1",
@@ -35,6 +35,8 @@
         "lint-staged": "^11.0.0",
         "nodemon": "^2.0.7",
         "prettier": "^2.3.0",
+        "ts-node": "^9.1.1",
+        "tsconfig-paths": "^3.9.0",
         "typescript": "^4.2.4"
     },
     "lint-staged": {
@@ -44,8 +46,6 @@
         ]
     },
     "dependencies": {
-        "discord.js": "^12.5.3",
-        "ts-node": "^9.1.1",
-        "tsconfig-paths": "^3.9.0"
+        "discord.js": "^12.5.3"
     }
 }
