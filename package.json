@@ -5,7 +5,7 @@
     "main": "src/app.ts",
     "scripts": {
         "build": "tsc",
-        "start": "node build/app.js",
+        "start": "node -r dotenv/config -r ts-node/register -r tsconfig-paths/register build/app.js",
         "dev": "nodemon --exec ts-node -r dotenv/config -r tsconfig-paths/register src/app.ts",
         "lint": "eslint src/**/*.ts",
         "test": "echo \"Error: no test specified\" && exit 1",
