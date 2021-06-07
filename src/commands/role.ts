@@ -1,4 +1,12 @@
-import { Collection, GuildMember, Message, Role, Snowflake } from 'discord.js';
+import {
+    ClientUser,
+    Collection,
+    Guild,
+    GuildMember,
+    Message,
+    Role,
+    Snowflake
+} from 'discord.js';
 import Command from 'src/libs/command';
 
 type RoleList = {
@@ -32,6 +40,10 @@ class RoleCMD extends Command {
                 {
                     name: '`--multi`',
                     value: 'Assign multiple role at once. \n'
+                },
+                {
+                    name: '`--list`',
+                    value: 'List the available roles. \n'
                 }
             ]
         };
@@ -39,10 +51,53 @@ class RoleCMD extends Command {
         message.channel.send({ embed: embedObj });
     }
 
+    private listRoles(guild: Guild, message: Message, bot: ClientUser): void {
+        guild.members.fetch(bot.id).then((botMember: GuildMember) => {
+            const roleList = this.getAvailableRoles(guild, botMember);
+
+            const rolesStr = Object.keys(roleList)
+                .map((r: string) => `[ ${r.toLowerCase()} ]`)
+                .join(' ');
+
+            const msg = '**Available Roles: ** ```ini\n' + rolesStr + '```';
+
+            message.channel.send(msg);
+        });
+    }
+
+    private getAvailableRoles(guild: Guild, botMember: GuildMember): RoleList {
+        // Get bot role position
+        let botHighestPosition = 0;
+        const botRole = botMember.roles.highest;
+        if (botRole !== undefined) {
+            botHighestPosition = botRole.rawPosition;
+        }
+
+        // List of guild roles
+        const roleList: RoleList = {};
+        guild?.roles.cache.forEach((role: Role) => {
+            // get list a roles below the bot role and ignore the role
+            if (
+                botHighestPosition > role.rawPosition &&
+                role.name.toLowerCase() !== '@everyone'
+            )
+                roleList[role.name.toLowerCase()] = role.id;
+        });
+
+        return roleList;
+    }
+
     public execute(message: Message, args: string[]): void {
         const first = args.shift();
 
         let reqRoles: string[] = [];
+
+        const guild = message.guild;
+        const bot = guild?.client.user;
+
+        if (!bot) {
+            throw new Error('Bot not found.');
+        }
 
         // Check for flags
         if (first === '--multi') {
@@ -52,6 +107,10 @@ class RoleCMD extends Command {
             }
 
             reqRoles = args;
+        } else if (first === '--list' && guild) {
+            // List role flag
+            this.listRoles(guild, message, bot);
+            return;
         } else {
             // Single role
             if (first === undefined) {
@@ -62,31 +121,13 @@ class RoleCMD extends Command {
             reqRoles = [first];
         }
 
-        const guild = message.guild;
-        const bot = guild?.client.user;
-
-        if (!bot) {
-            throw new Error('Bot not found.');
-        }
-
         guild?.members
             .fetch({ user: [message.author.id, bot.id] })
             .then((members: Collection<Snowflake, GuildMember>) => {
                 const [member, botMember] = members.map((m) => m);
 
-                // Get bot role position
-                let botHighestPosition = 0;
-                const botRole = botMember.roles.highest;
-                if (botRole !== undefined) {
-                    botHighestPosition = botRole.rawPosition;
-                }
-
-                // List of guild roles
-                const roleList: RoleList = {};
-                guild?.roles.cache.forEach((role: Role) => {
-                    if (botHighestPosition > role.rawPosition)
-                        roleList[role.name.toLowerCase()] = role.id;
-                });
+                // Get list of available roles
+                const roleList = this.getAvailableRoles(guild, botMember);
 
                 // Assign roles
                 const invalidRoles: string[] = [];
