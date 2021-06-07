@@ -4,7 +4,7 @@
     "description": "Ask Buddie Bot to manage the Discord server with some useful commands and automation.",
     "main": "src/app.ts",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && npx tsc-alias",
         "start": "node build/app.js",
         "dev": "nodemon --exec ts-node -r dotenv/config -r tsconfig-paths/register src/app.ts",
         "lint": "eslint src/**/*.ts",

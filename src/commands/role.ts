@@ -25,13 +25,13 @@ class RoleCMD extends Command {
     // Usage for invalid command
     private invalidCMD(message: Message): void {
         const embedObj = {
-            title: 'Role Commands',
-            description: 'Get a user role.',
+            title: 'Role Command',
+            description: this.description,
             color: '#e53935',
             fields: [
                 {
                     name: '**Usage Example: **',
-                    value: '```ab role [role]``````buddie role [role]```'
+                    value: '`ab role <role>` | `buddie role <role>`'
                 },
                 {
                     name: '**Flags: **',
@@ -76,7 +76,7 @@ class RoleCMD extends Command {
         // List of guild roles
         const roleList: RoleList = {};
         guild?.roles.cache.forEach((role: Role) => {
-            // get list a roles below the bot role and ignore the role
+            // get list a roles below the bot role and ignore the role @everyone
             if (
                 botHighestPosition > role.rawPosition &&
                 role.name.toLowerCase() !== '@everyone'

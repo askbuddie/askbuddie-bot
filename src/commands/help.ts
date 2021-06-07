@@ -6,21 +6,21 @@ class Help extends Command {
         super({
             name: 'help',
             aliases: [''],
-            description: 'Help command to show all the list.'
+            description:
+                'Please check the guide below on how to use bot. \
+            The bot support two prefix: `ab` | `buddie`.'
         });
     }
 
     public execute(message: Message): void {
         const embedObj = {
-            title: 'Help Commands',
-            description:
-                'Please check the guide below on how to use bot. \
-                The bot support two prefix: `ab` | `buddie`.',
+            title: 'Ask Buddie Help',
+            description: this.description,
             color: '#e53935',
             fields: [
                 {
-                    name: '**Usage Example: **',
-                    value: '```ab help``````buddie help```'
+                    name: '**Usage: **',
+                    value: '`ab <command>` | `buddie <command>`'
                 },
                 {
                     name: '**Commands: **',
@@ -28,11 +28,11 @@ class Help extends Command {
                 },
                 {
                     name: '`help`',
-                    value: 'Help command to show all the list.'
+                    value: 'Help command to show all the list of available commands.'
                 },
                 {
                     name: '`role`',
-                    value: 'Role command to give yourself a role. Use this command to self assign roles.'
+                    value: 'Role command to give yourself a role. Use this command to self assign and list roles.'
                 }
             ]
         };
