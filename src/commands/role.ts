@@ -132,11 +132,24 @@ class RoleCMD extends Command {
                 // Assign roles
                 const invalidRoles: string[] = [];
                 const roles: string[] = [];
+                const rolesAdded: string[] = [];
+
+                // Roles of the member
+                const memberRoles: RoleList = {};
+
+                member.roles.cache.forEach((role: Role) => {
+                    memberRoles[role.name.toLowerCase()] = role.id;
+                });
 
                 reqRoles.forEach((r: string) => {
-                    const role = roleList[r.toLowerCase()];
+                    const roleName = r.toLowerCase();
+                    const role = roleList[roleName];
                     if (role !== undefined) {
-                        roles.push(role);
+                        // Check for already existing role
+                        if (!memberRoles[roleName]) {
+                            roles.push(role);
+                            rolesAdded.push(roleName);
+                        }
                     } else {
                         invalidRoles.push(r);
                     }
@@ -144,6 +157,14 @@ class RoleCMD extends Command {
 
                 member?.roles.add(roles);
 
+                // Success Message
+                if (roles.length > 0) {
+                    message.channel.send(
+                        `Successfully added role(s): ${rolesAdded}`
+                    );
+                }
+
+                // Error message
                 if (invalidRoles.length > 0) {
                     message.channel.send(
                         `Couldn't find the following role(s): ${invalidRoles}`
