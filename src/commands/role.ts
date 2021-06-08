@@ -167,17 +167,20 @@ class RoleCMD extends Command {
         try {
             await member?.roles.add(roles);
 
+            const successRoles = rolesAdded.map((r) => `\`${r}\``).join(', ');
+            const errorRoles = invalidRoles.map((r) => `\`${r}\``).join(', ');
+
             // Success Message
             if (roles.length > 0) {
                 message.channel.send(
-                    `Successfully added role(s): ${rolesAdded}`
+                    `Successfully added role(s): ${successRoles}`
                 );
             }
 
             // Error message
             if (invalidRoles.length > 0) {
                 message.channel.send(
-                    `Couldn't find the following role(s): ${invalidRoles}`
+                    `Couldn't find the following role(s): ${errorRoles}`
                 );
             }
         } catch (err) {
