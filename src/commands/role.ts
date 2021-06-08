@@ -51,18 +51,22 @@ class RoleCMD extends Command {
         message.channel.send({ embed: embedObj });
     }
 
-    private listRoles(guild: Guild, message: Message, bot: ClientUser): void {
-        guild.members.fetch(bot.id).then((botMember: GuildMember) => {
-            const roleList = this.getAvailableRoles(guild, botMember);
+    // List role flag
+    private async listRoles(
+        guild: Guild,
+        message: Message,
+        bot: ClientUser
+    ): Promise<void> {
+        const botMember: GuildMember = await guild.members.fetch(bot.id);
+        const roleList = this.getAvailableRoles(guild, botMember);
 
-            const rolesStr = Object.keys(roleList)
-                .map((r: string) => `[ ${r.toLowerCase()} ]`)
-                .join(' ');
+        const rolesStr = Object.keys(roleList)
+            .map((r: string) => `[ ${r.toLowerCase()} ]`)
+            .join(' ');
 
-            const msg = '**Available Roles: ** ```ini\n' + rolesStr + '```';
+        const msg = '**Available Roles: ** ```ini\n' + rolesStr + '```';
 
-            message.channel.send(msg);
-        });
+        message.channel.send(msg);
     }
 
     private getAvailableRoles(guild: Guild, botMember: GuildMember): RoleList {
@@ -87,7 +91,7 @@ class RoleCMD extends Command {
         return roleList;
     }
 
-    public execute(message: Message, args: string[]): void {
+    public async execute(message: Message, args: string[]): Promise<void> {
         const first = args.shift();
 
         let reqRoles: string[] = [];
@@ -97,6 +101,10 @@ class RoleCMD extends Command {
 
         if (!bot) {
             throw new Error('Bot not found.');
+        }
+
+        if (!guild) {
+            throw new Error('Guild not found.');
         }
 
         // Check for flags
@@ -109,7 +117,7 @@ class RoleCMD extends Command {
             reqRoles = args;
         } else if (first === '--list' && guild) {
             // List role flag
-            this.listRoles(guild, message, bot);
+            await this.listRoles(guild, message, bot);
             return;
         } else {
             // Single role
@@ -121,56 +129,60 @@ class RoleCMD extends Command {
             reqRoles = [first];
         }
 
-        guild?.members
-            .fetch({ user: [message.author.id, bot.id] })
-            .then((members: Collection<Snowflake, GuildMember>) => {
-                const [member, botMember] = members.map((m) => m);
+        // Get the member and the bot user
+        const members: Collection<Snowflake, GuildMember> =
+            await guild?.members.fetch({ user: [message.author.id, bot.id] });
 
-                // Get list of available roles
-                const roleList = this.getAvailableRoles(guild, botMember);
+        const [member, botMember] = members.map((m) => m);
 
-                // Assign roles
-                const invalidRoles: string[] = [];
-                const roles: string[] = [];
-                const rolesAdded: string[] = [];
+        // Get list of available roles
+        const roleList = this.getAvailableRoles(guild, botMember);
 
-                // Roles of the member
-                const memberRoles: RoleList = {};
+        // Assign roles
+        const invalidRoles: string[] = [];
+        const roles: string[] = [];
+        const rolesAdded: string[] = [];
 
-                member.roles.cache.forEach((role: Role) => {
-                    memberRoles[role.name.toLowerCase()] = role.id;
-                });
+        // Roles of the member
+        const memberRoles: RoleList = {};
 
-                reqRoles.forEach((r: string) => {
-                    const roleName = r.toLowerCase();
-                    const role = roleList[roleName];
-                    if (role !== undefined) {
-                        // Check for already existing role
-                        if (!memberRoles[roleName]) {
-                            roles.push(role);
-                            rolesAdded.push(roleName);
-                        }
-                    } else {
-                        invalidRoles.push(r);
-                    }
-                });
+        member.roles.cache.forEach((role: Role) => {
+            memberRoles[role.name.toLowerCase()] = role.id;
+        });
 
-                member?.roles.add(roles);
-
-                // Success Message
-                if (roles.length > 0) {
-                    message.channel.send(
-                        `Successfully added role(s): ${rolesAdded}`
-                    );
+        reqRoles.forEach((r: string) => {
+            const roleName = r.toLowerCase();
+            const role = roleList[roleName];
+            if (role !== undefined) {
+                // Check for already existing role
+                if (!memberRoles[roleName]) {
+                    roles.push(role);
+                    rolesAdded.push(roleName);
                 }
+            } else {
+                invalidRoles.push(r);
+            }
+        });
 
-                // Error message
-                if (invalidRoles.length > 0) {
-                    message.channel.send(
-                        `Couldn't find the following role(s): ${invalidRoles}`
-                    );
-                }
-            });
+        try {
+            await member?.roles.add(roles);
+
+            // Success Message
+            if (roles.length > 0) {
+                message.channel.send(
+                    `Successfully added role(s): ${rolesAdded}`
+                );
+            }
+
+            // Error message
+            if (invalidRoles.length > 0) {
+                message.channel.send(
+                    `Couldn't find the following role(s): ${invalidRoles}`
+                );
+            }
+        } catch (err) {
+            message.channel.send('Something went wrong.');
+        }
     }
 }
 
