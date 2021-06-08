@@ -32,7 +32,7 @@ class Help extends Command {
                 },
                 {
                     name: '`role`',
-                    value: 'Role command to give yourself a role. Use this command to self assign roles.'
+                    value: 'Role command to give yourself a role. Use this command to self assign and list roles.'
                 }
             ]
         };
