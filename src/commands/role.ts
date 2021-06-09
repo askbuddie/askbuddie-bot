@@ -13,6 +13,16 @@ type RoleList = {
     [key: string]: string;
 };
 
+interface Params {
+    guild: Guild;
+    message: Message;
+    bot: ClientUser;
+}
+
+interface RemoveParams extends Params {
+    arg: string;
+}
+
 class RoleCMD extends Command {
     constructor() {
         super({
@@ -44,6 +54,10 @@ class RoleCMD extends Command {
                 {
                     name: '`--list`',
                     value: 'List the available roles. \n'
+                },
+                {
+                    name: '`--rm <role>`',
+                    value: 'Remove an existing role. \n'
                 }
             ]
         };
@@ -52,11 +66,8 @@ class RoleCMD extends Command {
     }
 
     // List role flag
-    private async listRoles(
-        guild: Guild,
-        message: Message,
-        bot: ClientUser
-    ): Promise<void> {
+    private async listRoles(params: Params): Promise<void> {
+        const { guild, message, bot } = params;
         const botMember: GuildMember = await guild.members.fetch(bot.id);
         const roleList = this.getAvailableRoles(guild, botMember);
 
@@ -67,6 +78,55 @@ class RoleCMD extends Command {
         const msg = '**Available Roles: ** ```ini\n' + rolesStr + '```';
 
         message.channel.send(msg);
+    }
+
+    // Remove role flag
+    private async removeRoles(params: RemoveParams): Promise<void> {
+        const { guild, message, bot, arg } = params;
+
+        const members = await guild.members.fetch({
+            user: [message.author.id, bot.id]
+        });
+
+        const [member, botMember] = await members.map((m) => m);
+
+        // bot role position
+        const botHighestPosition = botMember.roles.highest.rawPosition;
+
+        let removeRoleId = '';
+        let found = false;
+
+        member.roles.cache.forEach((role: Role) => {
+            // Find the role from the argument
+            if (role.name.toLowerCase() === arg.toLowerCase()) {
+                // Check if bot can remove it or not
+                if (botHighestPosition > role.rawPosition) {
+                    removeRoleId = role.id;
+                } else {
+                    message.channel.send(
+                        `Not enough permission to remove \`${arg}\` role`
+                    );
+                }
+                found = true;
+                return;
+            }
+        });
+
+        if (found && removeRoleId === '') {
+            return;
+        } else if (removeRoleId !== '') {
+            // try to remove the role
+            try {
+                await member.roles.remove(removeRoleId);
+                message.channel.send(
+                    `Successfully removed role: \`${arg.toLowerCase()}\``
+                );
+            } catch (e) {
+                message.channel.send('Something went wrong.');
+            }
+        } else {
+            message.channel.send(`Couldn't find role: \`${arg}\``);
+        }
     }
 
     private getAvailableRoles(guild: Guild, botMember: GuildMember): RoleList {
@@ -108,25 +168,45 @@ class RoleCMD extends Command {
         }
 
         // Check for flags
-        if (first === '--multi') {
-            if (args.length === 0) {
-                this.invalidCMD(message);
-                return;
-            }
+        switch (first) {
+            // Multiple roles assignment flag
+            case '--multi':
+                if (args.length === 0) {
+                    this.invalidCMD(message);
+                    return;
+                }
 
-            reqRoles = args;
-        } else if (first === '--list' && guild) {
+                reqRoles = args;
+                break;
+
             // List role flag
-            await this.listRoles(guild, message, bot);
-            return;
-        } else {
-            // Single role
-            if (first === undefined) {
-                this.invalidCMD(message);
+            case '--list':
+                await this.listRoles({ guild, message, bot });
                 return;
-            }
 
-            reqRoles = [first];
+            case '--rm':
+                if (args.length === 0) {
+                    this.invalidCMD(message);
+                    return;
+                } else if (args.length > 1) {
+                    message.channel.send(
+                        'Please remove one role at a time, this is to prevent user from removing and adding multiple roles frequently.'
+                    );
+                    return;
+                }
+                await this.removeRoles({ guild, message, bot, arg: args[0] });
+
+                return;
+
+            default:
+                // Single role
+                if (first === undefined) {
+                    this.invalidCMD(message);
+                    return;
+                }
+
+                reqRoles = [first];
+                break;
         }
 
         // Get the member and the bot user
