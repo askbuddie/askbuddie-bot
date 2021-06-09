@@ -13,6 +13,16 @@ type RoleList = {
     [key: string]: string;
 };
 
+interface Params {
+    guild: Guild;
+    message: Message;
+    bot: ClientUser;
+}
+
+interface RemoveParams extends Params {
+    arg: string;
+}
+
 class RoleCMD extends Command {
     constructor() {
         super({
@@ -56,11 +66,8 @@ class RoleCMD extends Command {
     }
 
     // List role flag
-    private async listRoles(
-        guild: Guild,
-        message: Message,
-        bot: ClientUser
-    ): Promise<void> {
+    private async listRoles(params: Params): Promise<void> {
+        const { guild, message, bot } = params;
         const botMember: GuildMember = await guild.members.fetch(bot.id);
         const roleList = this.getAvailableRoles(guild, botMember);
 
@@ -74,12 +81,9 @@ class RoleCMD extends Command {
     }
 
     // Remove role flag
-    private async removeRoles(
-        guild: Guild,
-        message: Message,
-        bot: ClientUser,
-        arg: string
-    ): Promise<void> {
+    private async removeRoles(params: RemoveParams): Promise<void> {
+        const { guild, message, bot, arg } = params;
+
         const members = await guild.members.fetch({
             user: [message.author.id, bot.id]
         });
@@ -177,7 +181,7 @@ class RoleCMD extends Command {
 
             // List role flag
             case '--list':
-                await this.listRoles(guild, message, bot);
+                await this.listRoles({ guild, message, bot });
                 return;
 
             case '--rm':
@@ -190,7 +194,8 @@ class RoleCMD extends Command {
                     );
                     return;
                 }
-                await this.removeRoles(guild, message, bot, args[0]);
+                await this.removeRoles({ guild, message, bot, arg: args[0] });
+
                 return;
 
             default:
