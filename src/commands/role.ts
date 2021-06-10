@@ -222,6 +222,7 @@ class RoleCMD extends Command {
         const invalidRoles: string[] = [];
         const roles: string[] = [];
         const rolesAdded: string[] = [];
+        const rolesAlreadyPresent: string[] = [];
 
         // Roles of the member
         const memberRoles: RoleList = {};
@@ -238,6 +239,8 @@ class RoleCMD extends Command {
                 if (!memberRoles[roleName]) {
                     roles.push(role);
                     rolesAdded.push(roleName);
+                } else {
+                    rolesAlreadyPresent.push(r);
                 }
             } else {
                 invalidRoles.push(r);
@@ -249,6 +252,9 @@ class RoleCMD extends Command {
 
             const successRoles = rolesAdded.map((r) => `\`${r}\``).join(', ');
             const errorRoles = invalidRoles.map((r) => `\`${r}\``).join(', ');
+            const alreadyOwnedRoles = rolesAlreadyPresent
+                .map((r) => `\`${r}\``)
+                .join(', ');
 
             // Success Message
             if (roles.length > 0) {
@@ -261,6 +267,12 @@ class RoleCMD extends Command {
             if (invalidRoles.length > 0) {
                 message.channel.send(
                     `Couldn't find the following role(s): ${errorRoles}`
+                );
+            }
+
+            if (rolesAlreadyPresent.length > 0) {
+                message.channel.send(
+                    `You already have the role(s): ${alreadyOwnedRoles}`
                 );
             }
         } catch (err) {
