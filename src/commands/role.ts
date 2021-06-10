@@ -256,25 +256,21 @@ class RoleCMD extends Command {
                 .map((r) => `\`${r}\``)
                 .join(', ');
 
+            let msg = '';
             // Success Message
             if (roles.length > 0) {
-                message.channel.send(
-                    `Successfully added role(s): ${successRoles}`
-                );
+                msg += `Successfully added role(s): ${successRoles}\n`;
             }
 
             // Error message
             if (invalidRoles.length > 0) {
-                message.channel.send(
-                    `Couldn't find the following role(s): ${errorRoles}`
-                );
+                msg += `Couldn't find the following role(s): ${errorRoles}\n`;
             }
 
             if (rolesAlreadyPresent.length > 0) {
-                message.channel.send(
-                    `You already have the role(s): ${alreadyOwnedRoles}`
-                );
+                msg += `You already have the role(s): ${alreadyOwnedRoles}\n`;
             }
+            message.channel.send(msg);
         } catch (err) {
             message.channel.send('Something went wrong.');
         }
