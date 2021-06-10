@@ -77,7 +77,7 @@ class RoleCMD extends Command {
 
         const msg =
             rolesStr == ''
-                ? '**No public roles available.**'
+                ? '**No public role available.**'
                 : '**Available Roles: ** ```ini\n' + rolesStr + '```';
 
         message.channel.send(msg);
