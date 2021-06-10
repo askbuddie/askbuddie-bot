@@ -75,7 +75,10 @@ class RoleCMD extends Command {
             .map((r: string) => `[ ${r.toLowerCase()} ]`)
             .join(' ');
 
-        const msg = '**Available Roles: ** ```ini\n' + rolesStr + '```';
+        const msg =
+            rolesStr == ''
+                ? '**No public roles available.**'
+                : '**Available Roles: ** ```ini\n' + rolesStr + '```';
 
         message.channel.send(msg);
     }
