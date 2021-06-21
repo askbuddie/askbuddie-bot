@@ -1,6 +1,6 @@
 <p align="center">
      <a href="https://www.askbuddie.com">
-         <img "askbuddie-bot.png" align="center" alt="askbuddie-icon" width="300"/>
+         <img src="askbuddie-bot.png" align="center" alt="askbuddie-icon" width="300"/>
      </a>
 </p>
 <h1 align="center" style="border: 0;"> Ask Buddie Bot </h1>
