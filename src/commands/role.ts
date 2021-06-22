@@ -23,6 +23,10 @@ interface RemoveParams extends Params {
     arg: string;
 }
 
+interface CountParams extends Params {
+    args: string[];
+}
+
 class RoleCMD extends Command {
     constructor() {
         super({
@@ -58,6 +62,10 @@ class RoleCMD extends Command {
                 {
                     name: '`--rm <role>`',
                     value: 'Remove an existing role. \n'
+                },
+                {
+                    name: '`--count [<role>]`',
+                    value: 'Count members in one or all roles. \n'
                 }
             ]
         };
@@ -132,13 +140,18 @@ class RoleCMD extends Command {
         }
     }
 
-    private getAvailableRoles(guild: Guild, botMember: GuildMember): RoleList {
+    private getBotRolePosition(botMember: GuildMember): number {
         // Get bot role position
         let botHighestPosition = 0;
         const botRole = botMember.roles.highest;
         if (botRole !== undefined) {
             botHighestPosition = botRole.rawPosition;
         }
+        return botHighestPosition;
+    }
+
+    private getAvailableRoles(guild: Guild, botMember: GuildMember): RoleList {
+        const botHighestPosition = this.getBotRolePosition(botMember);
 
         // List of guild roles
         const roleList: RoleList = {};
@@ -152,6 +165,61 @@ class RoleCMD extends Command {
         });
 
         return roleList;
+    }
+
+    // Role count command
+    private async countCMD(params: CountParams): Promise<void> {
+        const { guild, message, bot, args } = params;
+        const botMember: GuildMember = await guild.members.fetch(bot.id);
+
+        const botHighestPosition = this.getBotRolePosition(botMember);
+
+        // Get available roles
+        const roles: Collection<string, Role> = guild?.roles.cache.filter(
+            (role: Role) => {
+                if (
+                    botHighestPosition > role.rawPosition &&
+                    role.name.toLowerCase() !== '@everyone'
+                ) {
+                    return true;
+                }
+                return false;
+            }
+        );
+
+        // count members of all roles
+        if (args.length === 0) {
+            let msg = 'Members count by role: \n';
+            if (roles.size === 0) {
+                msg = 'No public role available.';
+            } else {
+                roles.map((role: Role) => {
+                    msg += `${role.name}: ${role.members.size}\n`;
+                });
+            }
+
+            message.channel.send(msg);
+        } else {
+            // count members of requested role
+            let found = false;
+
+            roles.every((role: Role) => {
+                // found required role
+                if (args[0].toLowerCase() === role.name.toLowerCase()) {
+                    message.channel.send(
+                        `Total members in role ${role.name}: ${role.members.size}`
+                    );
+                    found = true;
+                    return false;
+                }
+
+                return true;
+            });
+
+            if (!found) {
+                message.channel.send(`Role not found.`);
+            }
+        }
     }
 
     public async execute(message: Message, args: string[]): Promise<void> {
@@ -187,6 +255,7 @@ class RoleCMD extends Command {
                 await this.listRoles({ guild, message, bot });
                 return;
 
+            // remove role flag
             case '--rm':
                 if (args.length === 0) {
                     this.invalidCMD(message);
@@ -199,6 +268,11 @@ class RoleCMD extends Command {
                 }
                 await this.removeRoles({ guild, message, bot, arg: args[0] });
 
+                return;
+
+            // count role flag
+            case '--count':
+                this.countCMD({ guild, message, bot, args });
                 return;
 
             default:
