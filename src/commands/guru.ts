@@ -11,25 +11,31 @@ export default class GuruCMD extends Command {
     }
 
     execute(message: Message): void {
-        message.channel.send(content);
+        const embedObj = {
+            title: 'Ask Buddie guru',
+            description: this.description,
+            color: '#e53935',
+            fields: [
+                {
+                    name: "Don't ask to ask, just ask",
+                    value: `Include as much as information you can to describe to problem directly. 
+            Don't ask to ask, just ask it and the members will not have to ask you in return. 
+            Such question will decrease the user engagement and the problem gets unnoticed most of the time.
+            <https://dontasktoask.com/>`
+                },
+                {
+                    name: 'Code formatting',
+                    value: `No plain text or screenshot
+                Make use of markdown provided by Discord to format the code and improve readability. It will be easier for others to go through the code. Don't post the screenshot of code as well. Keep it clean with the available features.
+                Read more about markdown: https://www.markdownguide.org/cheat-sheet/
+                
+                Apart from markdown you can use below platform for code sharing:
+                GitHub Gist: https://gist.github.com/
+                CodeSandbox: https://codesandbox.io/s/
+                Pastebin: https://pastebin.com/"`
+                }
+            ]
+        };
+        message.channel.send({ embed: embedObj });
     }
 }
-
-const content = `
-**Don't ask to ask, just ask**
-
-Include as much as information you can to describe to problem directly. 
-Don't ask to ask, just ask it and the members will not have to ask you in return. 
-Such question will decrease the user engagement and the problem gets unnoticed most of the time.
-<https://dontasktoask.com/>
-
-**Code formatting** 
-No plain text or screenshot
-Make use of markdown provided by Discord to format the code and improve readability. It will be easier for others to go through the code. Don't post the screenshot of code as well. Keep it clean with the available features.
-Read more about markdown: https://www.markdownguide.org/cheat-sheet/
-
-Apart from markdown you can use below platform for code sharing:
-GitHub Gist: https://gist.github.com/
-CodeSandbox: https://codesandbox.io/s/
-Pastebin: https://pastebin.com/"
-`;
