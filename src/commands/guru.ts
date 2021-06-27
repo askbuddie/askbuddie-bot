@@ -12,7 +12,7 @@ export default class GuruCMD extends Command {
 
     execute(message: Message): void {
         const embedObj = {
-            title: 'Ask Buddie guru',
+            title: 'Guidelines',
             description: this.description,
             color: '#e53935',
             fields: [
