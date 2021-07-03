@@ -189,16 +189,22 @@ class RoleCMD extends Command {
 
         // count members of all roles
         if (args.length === 0) {
-            let msg = 'Members count by role: \n';
+            const field = { name: '\u200b', value: '' };
             if (roles.size === 0) {
-                msg = 'No public role available.';
+                const msg = 'No public role available.';
+                message.channel.send(msg);
+                return;
             } else {
                 roles.map((role: Role) => {
-                    msg += `${role.name}: ${role.members.size}\n`;
+                    field.value += `**${role.name}** : \`${role.members.size}\`\n`;
                 });
             }
-
-            message.channel.send(msg);
+            const embedObj = {
+                title: 'Members count by role: \n',
+                color: '#e53935',
+                fields: [field]
+            };
+            message.channel.send({ embed: embedObj });
         } else {
             // count members of requested role
             let found = false;
@@ -207,7 +213,7 @@ class RoleCMD extends Command {
                 // found required role
                 if (args[0].toLowerCase() === role.name.toLowerCase()) {
                     message.channel.send(
-                        `Total members in role ${role.name}: ${role.members.size}`
+                        `Total members in role **${role.name}** : \`${role.members.size}\``
                     );
                     found = true;
                     return false;
