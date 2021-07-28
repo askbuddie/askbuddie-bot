@@ -65,7 +65,7 @@ class RoleCMD extends Command {
                 },
                 {
                     name: '`--count [<role>]`',
-                    value: 'Count members in one or all roles. \n'
+                    value: 'Count online members in one or all roles. \n'
                 }
             ]
         };
@@ -200,7 +200,7 @@ class RoleCMD extends Command {
                 });
             }
             const embedObj = {
-                title: 'Members count by role: \n',
+                title: 'Online members count by role: \n',
                 color: '#e53935',
                 fields: [field]
             };
@@ -213,7 +213,7 @@ class RoleCMD extends Command {
                 // found required role
                 if (args[0].toLowerCase() === role.name.toLowerCase()) {
                     message.channel.send(
-                        `Total members in role **${role.name}** : \`${role.members.size}\``
+                        `Total online members in role **${role.name}** : \`${role.members.size}\``
                     );
                     found = true;
                     return false;
