@@ -296,7 +296,10 @@ class RoleCMD extends Command {
         const members: Collection<Snowflake, GuildMember> =
             await guild?.members.fetch({ user: [message.author.id, bot.id] });
 
-        const [member, botMember] = members.map((m) => m);
+        const [user, buddiebot] = members.partition((m) => !m.user.bot);
+
+        const [member] = user.values();
+        const [botMember] = buddiebot.values();
 
         // Get list of available roles
         const roleList = this.getAvailableRoles(guild, botMember);
