@@ -80,7 +80,7 @@ class RoleCMD extends Command {
         const roleList = this.getAvailableRoles(guild, botMember);
 
         const rolesStr = Object.keys(roleList)
-            .map((r: string) => `[${r.toLowerCase()}]`)
+            .map((r: string) => `[ ${r.toLowerCase()} ]`)
             .join(' ');
 
         const msg =
@@ -108,17 +108,14 @@ class RoleCMD extends Command {
         let found = false;
 
         member.roles.cache.forEach((role: Role) => {
-            const roleName = (
-                arg.match(/^\[(.*?)\]$/)?.[1] ?? arg
-            ).toLowerCase();
             // Find the role from the argument
-            if (role.name.toLowerCase() === roleName.toLowerCase()) {
+            if (role.name.toLowerCase() === arg.toLowerCase()) {
                 // Check if bot can remove it or not
                 if (botHighestPosition > role.rawPosition) {
                     removeRoleId = role.id;
                 } else {
                     message.channel.send(
-                        `Not enough permission to remove \`${roleName}\` role`
+                        `Not enough permission to remove \`${arg}\` role`
                     );
                 }
                 found = true;
@@ -318,7 +315,7 @@ class RoleCMD extends Command {
         });
 
         reqRoles.forEach((r: string) => {
-            const roleName = (r.match(/^\[(.*?)\]$/)?.[1] ?? r).toLowerCase();
+            const roleName = r.toLowerCase();
             const role = roleList[roleName];
             if (role !== undefined) {
                 // Check for already existing role
@@ -326,10 +323,10 @@ class RoleCMD extends Command {
                     roles.push(role);
                     rolesAdded.push(roleName);
                 } else {
-                    rolesAlreadyPresent.push(roleName);
+                    rolesAlreadyPresent.push(r);
                 }
             } else {
-                invalidRoles.push(roleName);
+                invalidRoles.push(r);
             }
         });
 
