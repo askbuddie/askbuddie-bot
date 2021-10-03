@@ -78,7 +78,9 @@ class RoleCMD extends Command {
     private async listRoles(params: Params): Promise<void> {
         const { guild, message, bot } = params;
         const botMember: GuildMember = await guild.members.fetch(bot.id);
-        const roleList = Object.keys(this.getAvailableRoles(guild, botMember));
+        const roleList = Object.keys(
+            this.getAvailableRoles(guild, botMember)
+        ).sort();
 
         if (roleList.length === 0) {
             message.channel.send('**No public role available.**');
