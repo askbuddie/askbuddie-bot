@@ -156,10 +156,11 @@ class RoleCMD extends Command {
         // List of guild roles
         const roleList: RoleList = {};
         guild?.roles.cache.forEach((role: Role) => {
-            // get list a roles below the bot role and ignore the role @everyone
+            // get list a roles below the bot role, ignore the role @everyone and ignore those it can't edit, which are probably other bot's roles
             if (
                 botHighestPosition > role.rawPosition &&
-                role.name.toLowerCase() !== '@everyone'
+                role.name.toLowerCase() !== '@everyone' &&
+                role.editable
             )
                 roleList[role.name.toLowerCase()] = role.id;
         });
@@ -179,7 +180,8 @@ class RoleCMD extends Command {
             (role: Role) => {
                 if (
                     botHighestPosition > role.rawPosition &&
-                    role.name.toLowerCase() !== '@everyone'
+                    role.name.toLowerCase() !== '@everyone' &&
+                    role.editable
                 ) {
                     return true;
                 }
