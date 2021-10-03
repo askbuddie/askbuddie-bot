@@ -176,15 +176,20 @@ class RoleCMD extends Command {
         const roleList: RoleList = {};
         guild?.roles.cache.forEach((role: Role) => {
             // get list a roles below the bot role, ignore the role @everyone and ignore those it can't edit, which are probably other bot's roles
-            if (
-                botHighestPosition > role.rawPosition &&
-                role.name.toLowerCase() !== '@everyone' &&
-                role.editable
-            )
+            if (this.isAssignableRole(role, botHighestPosition))
                 roleList[role.name.toLowerCase()] = role.id;
         });
 
         return roleList;
+    }
+
+    // check if role is below the bot role, ignore the role @everyone and ignore those it can't edit, which are probably other bot's roles
+    private isAssignableRole(role: Role, botHighestPosition: number): boolean {
+        return (
+            botHighestPosition > role.rawPosition &&
+            role.name.toLowerCase() !== '@everyone' &&
+            role.editable
+        );
     }
 
     // Role count command
@@ -197,11 +202,7 @@ class RoleCMD extends Command {
         // Get available roles
         const roles: Collection<string, Role> = guild?.roles.cache.filter(
             (role: Role) => {
-                if (
-                    botHighestPosition > role.rawPosition &&
-                    role.name.toLowerCase() !== '@everyone' &&
-                    role.editable
-                ) {
+                if (this.isAssignableRole(role, botHighestPosition)) {
                     return true;
                 }
                 return false;
