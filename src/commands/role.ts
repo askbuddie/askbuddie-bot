@@ -4,6 +4,7 @@ import {
     Guild,
     GuildMember,
     Message,
+    MessageEmbed,
     Role,
     Snowflake
 } from 'discord.js';
@@ -77,18 +78,34 @@ class RoleCMD extends Command {
     private async listRoles(params: Params): Promise<void> {
         const { guild, message, bot } = params;
         const botMember: GuildMember = await guild.members.fetch(bot.id);
-        const roleList = this.getAvailableRoles(guild, botMember);
+        const roleList = Object.keys(this.getAvailableRoles(guild, botMember));
 
-        const rolesStr = Object.keys(roleList)
-            .map((r: string) => `[ ${r.toLowerCase()} ]`)
-            .join(' ');
+        if (roleList.length === 0) {
+            message.channel.send('**No public role available.**');
+            return;
+        }
 
-        const msg =
-            rolesStr == ''
-                ? '**No public role available.**'
-                : '**Available Roles: ** ```ini\n' + rolesStr + '```';
+        const [leftColumn, rightColumn] = [
+            roleList.splice(0, roleList.length / 2),
+            roleList
+        ];
+        const invisibleSeparator = '⁣'; // it is NOT an empty string
+        const embed = new MessageEmbed({
+            color: 0x003dbe,
+            fields: [
+                {
+                    inline: true,
+                    name: invisibleSeparator,
+                    value: leftColumn.join('\n')
+                }
+            ],
+            title: 'Available Roles'
+        });
+        if (rightColumn.length > 0) {
+            embed.addField(invisibleSeparator, rightColumn.join('\n'), true);
+        }
 
-        message.channel.send(msg);
+        message.channel.send(embed);
     }
 
     // Remove role flag
