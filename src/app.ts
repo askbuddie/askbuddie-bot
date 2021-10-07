@@ -1,4 +1,4 @@
-import { Message } from 'discord.js';
+import { GuildMember, Message, MessageEmbed } from 'discord.js';
 import AskBuddieBot from 'src/libs/askbuddiebot';
 
 const askBuddieBot = new AskBuddieBot();
@@ -29,5 +29,19 @@ askBuddieBot.on('message', (message: Message) => {
     } catch (error) {
         console.error(error);
         message.reply('Error executing the command!');
+    }
+});
+
+askBuddieBot.on('guildMemberAdd', (member: GuildMember) => {
+    let channels = member.guild.channels.cache;
+    let channel = channels.find(c => c.name.toLowerCase() === 'welcome');
+    if (!channel) {
+        channel = channels.find(c => c.permissionsFor(member)!.has("SEND_MESSAGES"));
+    }
+    if (channel?.isText()) {
+        let message = new MessageEmbed()
+            .setTitle(`Welcome to ${member.guild.name}!`)
+            .setDescription('You can introduce yourself in the introduction channel');
+        channel.send({ embed: message });
     }
 });
