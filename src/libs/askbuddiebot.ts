@@ -1,4 +1,4 @@
-import { Client, Collection } from 'discord.js';
+import { Client, Collection, Intents } from 'discord.js';
 
 import * as commands from 'src/commands';
 import config from 'src/config';
@@ -10,7 +10,7 @@ class AskBuddieBot extends Client {
     public readonly prefix: [string, string];
 
     constructor() {
-        super();
+        super({ ws: { intents: Intents.ALL } });
         this.config = config;
         this.commandList = new Collection();
         this.prefix = ['ab', 'buddie'];
