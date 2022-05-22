@@ -4,6 +4,7 @@ import {
     Guild,
     GuildMember,
     Message,
+    MessageEmbed,
     Role,
     Snowflake
 } from 'discord.js';
@@ -77,18 +78,36 @@ class RoleCMD extends Command {
     private async listRoles(params: Params): Promise<void> {
         const { guild, message, bot } = params;
         const botMember: GuildMember = await guild.members.fetch(bot.id);
-        const roleList = this.getAvailableRoles(guild, botMember);
+        const roleList = Object.keys(
+            this.getAvailableRoles(guild, botMember)
+        ).sort();
 
-        const rolesStr = Object.keys(roleList)
-            .map((r: string) => `[ ${r.toLowerCase()} ]`)
-            .join(' ');
+        if (roleList.length === 0) {
+            message.channel.send('**No public role available.**');
+            return;
+        }
 
-        const msg =
-            rolesStr == ''
-                ? '**No public role available.**'
-                : '**Available Roles: ** ```ini\n' + rolesStr + '```';
+        const [leftColumn, rightColumn] = [
+            roleList.splice(0, roleList.length / 2),
+            roleList
+        ];
+        const invisibleSeparator = '⁣'; // it is NOT an empty string
+        const embed = new MessageEmbed({
+            color: 0x003dbe,
+            fields: [
+                {
+                    inline: true,
+                    name: invisibleSeparator,
+                    value: leftColumn.join('\n')
+                }
+            ],
+            title: 'Available Roles'
+        });
+        if (rightColumn.length > 0) {
+            embed.addField(invisibleSeparator, rightColumn.join('\n'), true);
+        }
 
-        message.channel.send(msg);
+        message.channel.send(embed);
     }
 
     // Remove role flag
@@ -156,15 +175,21 @@ class RoleCMD extends Command {
         // List of guild roles
         const roleList: RoleList = {};
         guild?.roles.cache.forEach((role: Role) => {
-            // get list a roles below the bot role and ignore the role @everyone
-            if (
-                botHighestPosition > role.rawPosition &&
-                role.name.toLowerCase() !== '@everyone'
-            )
+            // get list a roles below the bot role, ignore the role @everyone and ignore those it can't edit, which are probably other bot's roles
+            if (this.isAssignableRole(role, botHighestPosition))
                 roleList[role.name.toLowerCase()] = role.id;
         });
 
         return roleList;
+    }
+
+    // check if role is below the bot role, ignore the role @everyone and ignore those it can't edit, which are probably other bot's roles
+    private isAssignableRole(role: Role, botHighestPosition: number): boolean {
+        return (
+            botHighestPosition > role.rawPosition &&
+            role.name.toLowerCase() !== '@everyone' &&
+            role.editable
+        );
     }
 
     // Role count command
@@ -177,10 +202,7 @@ class RoleCMD extends Command {
         // Get available roles
         const roles: Collection<string, Role> = guild?.roles.cache.filter(
             (role: Role) => {
-                if (
-                    botHighestPosition > role.rawPosition &&
-                    role.name.toLowerCase() !== '@everyone'
-                ) {
+                if (this.isAssignableRole(role, botHighestPosition)) {
                     return true;
                 }
                 return false;
