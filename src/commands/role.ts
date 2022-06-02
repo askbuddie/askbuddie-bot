@@ -1,4 +1,5 @@
 import {
+    Channel,
     ClientUser,
     Collection,
     Guild,
@@ -6,7 +7,8 @@ import {
     Message,
     MessageEmbed,
     Role,
-    Snowflake
+    Snowflake,
+    TextChannel
 } from 'discord.js';
 import Command from 'src/libs/command';
 
@@ -250,6 +252,60 @@ class RoleCMD extends Command {
         }
     }
 
+    // admin command
+    // add a role to multiple members
+    private async roleToMultiMembers(
+        role: string,
+        bot: ClientUser,
+        guild: Guild,
+        message: Message
+    ) {
+        const textChannel = message.channel;
+        const members = message.mentions.members;
+
+        const botMember = await guild?.members.fetch({ user: bot.id });
+
+        const roleList = this.getAvailableRoles(guild, botMember);
+
+        if (!(role.toLowerCase() in roleList)) {
+            textChannel.send(`Cannot assign role ${role}.`);
+            return;
+        }
+
+        const roleId = roleList[role.toLowerCase()];
+
+        const successMembers: GuildMember[] = [];
+        const failedMembers: GuildMember[] = [];
+
+        await Promise.all(
+            members?.map(async (m) => {
+                try {
+                    await m.roles.add(roleId);
+                    successMembers.push(m);
+                } catch (err) {
+                    failedMembers.push(m);
+                }
+                return;
+            })
+        );
+
+        let msg = '';
+
+        if (successMembers.length > 0) {
+            msg += `Role ${role} added successfully to following member(s): `;
+            msg += successMembers.map((m) => m.nickname).join(', ');
+            msg += '\n';
+        }
+        if (failedMembers.length > 0) {
+            msg += `Could not assign role ${role} to following members: `;
+            msg += failedMembers.map((m) => m.nickname).join(', ');
+            msg += '\n';
+        }
+
+        textChannel.send(msg);
+    }
+
+    // this function is executed first when role command is used
     public async execute(message: Message, args: string[]): Promise<void> {
         const first = args.shift();
 
@@ -311,6 +367,13 @@ class RoleCMD extends Command {
                 }
 
                 reqRoles = [first];
+
+                // check for admin adding role to multiple users
+                if (args.length > 0) {
+                    await this.roleToMultiMembers(first, bot, guild, message);
+                    return;
+                }
+
                 break;
         }
 
