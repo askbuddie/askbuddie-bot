@@ -1,32 +1,26 @@
 {
-  "name": "askbuddie-bot",
-  "version": "1.0.0",
-  "repository": "https://github.com/askbuddie/askbuddie-bot",
-  "author": "Ask Buddie",
-  "license": "MIT",
-  "private": true,
-  "workspaces": [
-    "apps/*"
-  ],
-  "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev --parallel",
-    "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "prepare": "husky install"
-  },
-  "packageManager": "yarn@1.22.19",
-  "lint-staged": {
-    "apps/**/*.{js,ts,json}": [
-      "yarn lint",
-      "prettier --write"
-    ]
-  },
-  "devDependencies": {
-    "eslint-config": "*",
-    "husky": "^8.0.3",
-    "lint-staged": "^13.1.0",
-    "prettier": "latest",
-    "turbo": "latest"
-  }
+    "name": "askbuddie-bot",
+    "version": "1.0.0",
+    "repository": "https://github.com/askbuddie/askbuddie-bot",
+    "author": "Ask Buddie",
+    "license": "MIT",
+    "private": true,
+    "workspaces": [
+        "apps/*"
+    ],
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev --parallel",
+        "lint": "turbo run lint",
+        "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+        "prepare": "husky install"
+    },
+    "packageManager": "yarn@1.22.19",
+    "devDependencies": {
+        "eslint-config": "*",
+        "husky": "^8.0.3",
+        "lint-staged": "^13.1.0",
+        "prettier": "latest",
+        "turbo": "latest"
+    }
 }

@@ -21,6 +21,12 @@
         "url": "https://github.com/askbuddie/askbuddie-bot/issues"
     },
     "homepage": "https://github.com/askbuddie/askbuddie-bot#readme",
+    "lint-staged": {
+        "src/**/*.{js,ts,json}": [
+            "yarn lint",
+            "prettier --write"
+        ]
+    },
     "devDependencies": {
         "@types/node": "^15.3.0",
         "@typescript-eslint/eslint-plugin": "^5.48.1",
