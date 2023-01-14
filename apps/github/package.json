@@ -1,0 +1,41 @@
+{
+    "name": "github",
+    "version": "1.0.0",
+    "description": "Ask Buddie Bot to manage the github project board and issues.",
+    "main": "src/app.ts",
+    "scripts": {
+        "build": "tsc && npx tsc-alias",
+        "start": "node build/app.js",
+        "dev": "nodemon --exec ts-node -r dotenv/config -r tsconfig-paths/register src/app.ts",
+        "lint": "eslint src/**/*.ts",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/askbuddie/askbuddie-bot.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/askbuddie/askbuddie-bot/issues"
+    },
+    "homepage": "https://github.com/askbuddie/askbuddie-bot#readme",
+    "devDependencies": {
+        "@types/node": "^15.3.0",
+        "@typescript-eslint/eslint-plugin": "^5.48.1",
+        "@typescript-eslint/parser": "^5.48.1",
+        "dotenv": "^9.0.2",
+        "eslint": "^8.31.0",
+        "eslint-config-prettier": "^8.6.0",
+        "eslint-plugin-no-loops": "^0.3.0",
+        "eslint-plugin-prettier": "^4.2.1",
+        "nodemon": "^2.0.7",
+        "prettier": "^2.8.3",
+        "ts-node": "^9.1.1",
+        "tsconfig": "*",
+        "tsconfig-paths": "^3.9.0",
+        "typescript": "^4.2.4"
+    },
+    "dependencies": {}
+}
