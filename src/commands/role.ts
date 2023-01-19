@@ -4,6 +4,7 @@ import {
     Guild,
     GuildMember,
     Message,
+    MessageEmbed,
     Role,
     Snowflake
 } from 'discord.js';
@@ -17,6 +18,14 @@ interface Params {
     guild: Guild;
     message: Message;
     bot: ClientUser;
+}
+
+interface RoleToMultiMembersParams {
+    role: string;
+    bot: ClientUser;
+    guild: Guild;
+    message: Message;
+    remove: boolean;
 }
 
 interface RemoveParams extends Params {
@@ -77,18 +86,36 @@ class RoleCMD extends Command {
     private async listRoles(params: Params): Promise<void> {
         const { guild, message, bot } = params;
         const botMember: GuildMember = await guild.members.fetch(bot.id);
-        const roleList = this.getAvailableRoles(guild, botMember);
+        const roleList = Object.keys(
+            this.getAvailableRoles(guild, botMember)
+        ).sort();
 
-        const rolesStr = Object.keys(roleList)
-            .map((r: string) => `[ ${r.toLowerCase()} ]`)
-            .join(' ');
+        if (roleList.length === 0) {
+            message.channel.send('**No public role available.**');
+            return;
+        }
 
-        const msg =
-            rolesStr == ''
-                ? '**No public role available.**'
-                : '**Available Roles: ** ```ini\n' + rolesStr + '```';
+        const [leftColumn, rightColumn] = [
+            roleList.splice(0, roleList.length / 2),
+            roleList
+        ];
+        const invisibleSeparator = '⁣'; // it is NOT an empty string
+        const embed = new MessageEmbed({
+            color: 0x003dbe,
+            fields: [
+                {
+                    inline: true,
+                    name: invisibleSeparator,
+                    value: leftColumn.join('\n')
+                }
+            ],
+            title: 'Available Roles'
+        });
+        if (rightColumn.length > 0) {
+            embed.addField(invisibleSeparator, rightColumn.join('\n'), true);
+        }
 
-        message.channel.send(msg);
+        message.channel.send(embed);
     }
 
     // Remove role flag
@@ -156,15 +183,21 @@ class RoleCMD extends Command {
         // List of guild roles
         const roleList: RoleList = {};
         guild?.roles.cache.forEach((role: Role) => {
-            // get list a roles below the bot role and ignore the role @everyone
-            if (
-                botHighestPosition > role.rawPosition &&
-                role.name.toLowerCase() !== '@everyone'
-            )
+            // get list a roles below the bot role, ignore the role @everyone and ignore those it can't edit, which are probably other bot's roles
+            if (this.isAssignableRole(role, botHighestPosition))
                 roleList[role.name.toLowerCase()] = role.id;
         });
 
         return roleList;
+    }
+
+    // check if role is below the bot role, ignore the role @everyone and ignore those it can't edit, which are probably other bot's roles
+    private isAssignableRole(role: Role, botHighestPosition: number): boolean {
+        return (
+            botHighestPosition > role.rawPosition &&
+            role.name.toLowerCase() !== '@everyone' &&
+            role.editable
+        );
     }
 
     // Role count command
@@ -177,10 +210,7 @@ class RoleCMD extends Command {
         // Get available roles
         const roles: Collection<string, Role> = guild?.roles.cache.filter(
             (role: Role) => {
-                if (
-                    botHighestPosition > role.rawPosition &&
-                    role.name.toLowerCase() !== '@everyone'
-                ) {
+                if (this.isAssignableRole(role, botHighestPosition)) {
                     return true;
                 }
                 return false;
@@ -228,6 +258,100 @@ class RoleCMD extends Command {
         }
     }
 
+    // admin command
+    // add a role to multiple members
+    private async roleToMultiMembers(params: RoleToMultiMembersParams) {
+        const { role, bot, guild, message, remove } = params;
+
+        const textChannel = message.channel;
+        const members = message.mentions.members;
+        const executor = message.member;
+
+        // check if the message is coming from a guild
+        if (!executor) {
+            textChannel.send('This command can only be used in a server!');
+            return;
+        }
+
+        const botMember = await guild?.members.fetch({ user: bot.id });
+
+        // check permission of the author
+        if (
+            !this.isAssignableRole(
+                executor?.roles.highest,
+                this.getBotRolePosition(botMember)
+            ) &&
+            !(executor.user.id === guild.ownerID)
+        ) {
+            textChannel.send('You do not have permission to use this command!');
+            return;
+        }
+
+        const roleList = this.getAvailableRoles(guild, botMember);
+
+        // TODO: remove roles command
+        if (!(role.toLowerCase() in roleList)) {
+            textChannel.send(
+                `Cannot ${remove ? 'remove' : 'assign'} role ${role}.`
+            );
+            return;
+        }
+
+        const roleId = roleList[role.toLowerCase()];
+
+        const successMembers: GuildMember[] = [];
+        const failedMembers: GuildMember[] = [];
+
+        if (!members) {
+            textChannel.send('Invalid members!');
+            return;
+        }
+
+        // assign roles to the user
+        await Promise.all(
+            members?.map(async (member: GuildMember) => {
+                try {
+                    if (remove) {
+                        await member.roles.remove(roleId);
+                    } else {
+                        await member.roles.add(roleId);
+                    }
+                    successMembers.push(member);
+                } catch (err) {
+                    failedMembers.push(member);
+                }
+                return;
+            })
+        );
+
+        let msg = '';
+
+        if (successMembers.length > 0) {
+            if (remove) {
+                msg += `Role ${role} removed successfully from following member(s): `;
+            } else {
+                msg += `Role ${role} added successfully to following member(s): `;
+            }
+            msg += successMembers
+                .map((member) => member.displayName)
+                .join(', ');
+            msg += '\n';
+        }
+
+        if (failedMembers.length > 0) {
+            if (remove) {
+                msg += `Could not remove role ${role} from following members: `;
+            } else {
+                msg += `Could not assign role ${role} to following members: `;
+            }
+            msg += failedMembers.map((member) => member.displayName).join(', ');
+            msg += '\n';
+        }
+
+        textChannel.send(msg);
+    }
+
+    // this function is executed first when role command is used
     public async execute(message: Message, args: string[]): Promise<void> {
         const first = args.shift();
 
@@ -267,6 +391,19 @@ class RoleCMD extends Command {
                     this.invalidCMD(message);
                     return;
                 } else if (args.length > 1) {
+                    if (
+                        message.mentions.members &&
+                        message.mentions.members.size > 0
+                    ) {
+                        await this.roleToMultiMembers({
+                            role: args[0],
+                            bot: bot,
+                            guild: guild,
+                            message: message,
+                            remove: true
+                        });
+                        return;
+                    }
                     message.channel.send(
                         'Please remove one role at a time, this is to prevent user from removing and adding multiple roles frequently.'
                     );
@@ -289,6 +426,19 @@ class RoleCMD extends Command {
                 }
 
                 reqRoles = [first];
+
+                // check for admin adding role to multiple users
+                if (args.length > 0) {
+                    await this.roleToMultiMembers({
+                        role: first,
+                        bot: bot,
+                        guild: guild,
+                        message: message,
+                        remove: false
+                    });
+                    return;
+                }
+
                 break;
         }
 
