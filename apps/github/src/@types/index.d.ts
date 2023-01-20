@@ -14,6 +14,17 @@ type Issue = {
 };
 
 type Config = {
-    PRIVATE_REPO_URL: string | undefined;
-    PUBLIC_REPO_URL: string | undefined;
+    PRIVATE_REPO_NAME: string | undefined;
+    PUBLIC_REPO_NAME: string | undefined;
+    ORGANIZATION_NAME: string | undefined;
+    TOKEN: string | undefined;
+};
+
+type OrganizationRepo = {
+    private: {
+        id: string;
+    };
+    public: {
+        id: string;
+    };
 };

@@ -8,7 +8,7 @@ const askBuddieBot = AskBuddieBot.getInstance();
 
 app.use(express.json());
 
-app.post('/payload', (req, res) => {
+app.post('/payload', async (req, res) => {
     const payload = req.body as Payload;
 
     // get event name and action from the request
@@ -25,14 +25,14 @@ app.post('/payload', (req, res) => {
 
     // check if the event is from registered repository
     if (
-        askBuddieBot.isValidRepository(
-            (payload.repository?.html_url as string) ?? ''
+        !askBuddieBot.isValidRepository(
+            (payload.repository?.name as string) ?? ''
         )
     )
         return res.status(400).send('Not allowed.');
 
     // execute the event
-    const success = botEvent.handleEvent(payload);
+    const success = await botEvent.handleEvent(payload);
 
     if (!success) return res.status(500).send('Something went wrong!');
 

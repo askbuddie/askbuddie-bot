@@ -4,17 +4,16 @@ import AskBuddieBot from 'src/libs/askbuddiebot';
 class IssuesOpened implements Event {
     name = 'issues.opened';
 
-    handleEvent(payload: Payload): boolean {
+    async handleEvent(payload: Payload): Promise<boolean> {
         const issue = payload.issue as Issue;
-        const config = AskBuddieBot.getInstance().getConfig();
 
-        // get the repo to create the issue
-        let postRepo = config.PRIVATE_REPO_URL;
+        console.info(`Issue opened: ${issue.title}`);
 
-        if (payload.repository.html_url === postRepo)
-            postRepo = config.PUBLIC_REPO_URL;
+        const body = issue.body + `<br/><br/>Ref: ${issue.id}`;
 
-        return true;
+        return await AskBuddieBot.getInstance()
+            .getRepository()
+            .createIssue(issue.title, body);
     }
 }
 

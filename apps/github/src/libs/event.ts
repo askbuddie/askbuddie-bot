@@ -1,6 +1,6 @@
 interface Event {
     name: string;
-    handleEvent(payload: Payload): boolean;
+    handleEvent(payload: Payload): Promise<boolean>;
 }
 
 export default Event;
