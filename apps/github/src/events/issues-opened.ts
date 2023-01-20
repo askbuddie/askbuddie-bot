@@ -9,7 +9,7 @@ class IssuesOpened implements Event {
 
         console.info(`Issue opened: ${issue.title}`);
 
-        const body = issue.body + `<br/><br/>Ref: ${issue.id}`;
+        const body = issue.body + `<br/><br/>Ref: ${issue.name}-${issue.id}`;
 
         return await AskBuddieBot.getInstance()
             .getRepository()

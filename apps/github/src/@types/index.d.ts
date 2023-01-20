@@ -1,9 +1,9 @@
 type Payload = {
     action: string;
-    sender: { [key: string]: unknown };
-    repository: { [key: string]: unknown };
-    organization: { [key: string]: unknown };
-    installation: { [key: string]: unknown };
+    sender: Record<string, unknown>;
+    repository: Record<string, unknown>;
+    organization: Record<string, unknown>;
+    installation: Record<string, unknown>;
     [key: string]: unknown;
 };
 
@@ -14,10 +14,10 @@ type Issue = {
 };
 
 type Config = {
-    PRIVATE_REPO_NAME: string | undefined;
-    PUBLIC_REPO_NAME: string | undefined;
-    ORGANIZATION_NAME: string | undefined;
-    TOKEN: string | undefined;
+    PRIVATE_REPO_NAME?: string;
+    PUBLIC_REPO_NAME?: string;
+    ORGANIZATION_NAME?: string;
+    TOKEN?: string;
 };
 
 type OrganizationRepo = {
