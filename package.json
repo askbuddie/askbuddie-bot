@@ -13,7 +13,9 @@
         "dev": "turbo run dev --parallel",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "dev:github": "turbo run dev --filter github",
+        "dev:discord": "turbo run dev --filter discord"
     },
     "packageManager": "yarn@1.22.19",
     "devDependencies": {

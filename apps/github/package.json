@@ -28,6 +28,7 @@
         ]
     },
     "devDependencies": {
+        "@types/express": "^4.17.15",
         "@types/node": "^15.3.0",
         "@typescript-eslint/eslint-plugin": "^5.48.1",
         "@typescript-eslint/parser": "^5.48.1",
@@ -36,12 +37,15 @@
         "eslint-config-prettier": "^8.6.0",
         "eslint-plugin-no-loops": "^0.3.0",
         "eslint-plugin-prettier": "^4.2.1",
-        "nodemon": "^2.0.7",
+        "nodemon": "^2.0.20",
         "prettier": "^2.8.3",
-        "ts-node": "^9.1.1",
+        "ts-node": "^10.9.1",
         "tsconfig": "*",
         "tsconfig-paths": "^3.9.0",
         "typescript": "^4.2.4"
     },
-    "dependencies": {}
+    "dependencies": {
+        "axios": "^1.2.3",
+        "express": "^4.18.2"
+    }
 }
