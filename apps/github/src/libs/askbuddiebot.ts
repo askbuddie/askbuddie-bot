@@ -1,7 +1,7 @@
 import * as Events from '../events';
 import Event from './event';
 import config from 'src/config';
-import Repository from './repository';
+import GithubRepository from './github_repository';
 
 type EventList = {
     [key: string]: Event;
@@ -10,7 +10,7 @@ type EventList = {
 class AskBuddieBot {
     private events: EventList = {};
     private static instance: AskBuddieBot;
-    private repository: Repository | undefined;
+    private repository: GithubRepository | undefined;
 
     private constructor() {
         console.info('Loading config...');
@@ -45,16 +45,12 @@ class AskBuddieBot {
 
     // get id of the github repos and create a graphql repository for all the requests
     private async loadRepository(): Promise<void> {
-        const ids = await Repository.getRepositoryId(
-            config.ORGANIZATION_NAME ?? '',
-            config.PRIVATE_REPO_NAME ?? '',
-            config.PUBLIC_REPO_NAME ?? ''
-        );
-
-        this.repository = new Repository(ids.private.id, ids.public.id);
+        const repo = new GithubRepository();
+        await repo.init();
+        this.repository = repo;
     }
 
-    public getRepository(): Repository {
+    public getRepository(): GithubRepository {
         if (!this.repository) throw new Error('Repository is loading!');
 
         return this.repository;

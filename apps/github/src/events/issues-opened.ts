@@ -1,6 +1,12 @@
 import Event from '../libs/event';
 import AskBuddieBot from 'src/libs/askbuddiebot';
 
+type Issue = {
+    body: string | null;
+    title: string;
+    [key: string]: unknown;
+};
+
 class IssuesOpened implements Event {
     name = 'issues.opened';
 
@@ -9,7 +15,7 @@ class IssuesOpened implements Event {
 
         console.info(`Issue opened: ${issue.title}`);
 
-        const body = issue.body + `<br/><br/>Ref: ${issue.name}-${issue.id}`;
+        const body = issue.body + `<br/><br/>Ref: ${issue.title}-${issue.id}`;
 
         return await AskBuddieBot.getInstance()
             .getRepository()

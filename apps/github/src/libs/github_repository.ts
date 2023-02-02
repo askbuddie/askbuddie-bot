@@ -1,38 +1,33 @@
-import Axios from 'axios';
 import config from 'src/config';
+import RequestHandler from './request_handler';
 
-class Repository {
-    private static endpoint = 'https://api.github.com/graphql';
-    private publicRepoId: string;
-    private privateRepoId: string;
+type OrganizationRepo = {
+    private: {
+        id: string;
+    };
+    public: {
+        id: string;
+    };
+};
 
-    constructor(privateRepoId: string, publicRepoId: string) {
-        this.privateRepoId = privateRepoId;
-        this.publicRepoId = publicRepoId;
+class GithubRepository {
+    private publicRepoId = '';
+    private privateRepoId = '';
+    private requestHandler: RequestHandler;
+
+    constructor(requestHanlder: RequestHandler = new RequestHandler()) {
+        this.requestHandler = requestHanlder;
     }
 
-    public static async request(
-        query: string,
-        variables: Record<string, unknown>
-    ) {
-        return await Axios({
-            url: this.endpoint,
-            method: 'POST',
-            data: {
-                query: query,
-                variables: variables
-            },
-            headers: {
-                Authorization: `Bearer ${config.TOKEN}`
-            }
-        });
+    public async init() {
+        await this.getRepositoryId();
     }
 
-    public static async getRepositoryId(
-        origanization: string,
-        privateRepo: string,
-        publicRepo: string
-    ): Promise<OrganizationRepo> {
+    public async getRepositoryId(): Promise<void> {
+        const origanization: string = config.ORGANIZATION_NAME ?? '';
+        const privateRepo: string = config.PRIVATE_REPO_NAME ?? '';
+        const publicRepo: string = config.PUBLIC_REPO_NAME ?? '';
+
         const query = `
             query GetRepo($org:String!, $private:String!, $public:String!) {
                 organization(login: $org) {
@@ -46,7 +41,7 @@ class Repository {
             }
         `;
 
-        const res = await Repository.request(query, {
+        const res = await this.requestHandler.post(query, {
             org: origanization,
             private: privateRepo,
             public: publicRepo
@@ -55,7 +50,10 @@ class Repository {
         if (res.data.errors || !res.data.data)
             throw new Error(res.data.errors.message ?? 'Something went wrong!');
 
-        return res.data.data.organization as OrganizationRepo;
+        const repo = res.data.data.organization as OrganizationRepo;
+
+        this.privateRepoId = repo.private.id;
+        this.publicRepoId = repo.public.id;
     }
 
     public async createIssue(title: string, body: string): Promise<boolean> {
@@ -72,7 +70,7 @@ class Repository {
                 
                 `;
 
-        const res = await Repository.request(query, {
+        const res = await this.requestHandler.post(query, {
             repositoryId: repo,
             title,
             body
@@ -85,4 +83,4 @@ class Repository {
     }
 }
 
-export default Repository;
+export default GithubRepository;
